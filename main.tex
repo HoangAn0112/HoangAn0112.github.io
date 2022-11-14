@@ -1,0 +1,146 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+
+% Set page size and margins
+% Replace `letter paper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{iSSA report}
+\author{An Hoang}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+An's part:  Tav Avgar's paper brief sum up and Clustering on the individuals.
+\end{abstract}
+
+\section{Introduction}
+What is the purpose of this report?
+Who are the readers of this report?
+What are the report’s main messages?
+How will the report be structured?
+ \href{https://www.overleaf.com/learn}{one example}, or head to our plans page to 
+ 
+\section{Simulation de la sélection de l'habitat}
+
+\subsection{Problématique}
+
+
+
+\subsection{Étude du papier de Tal Avgar}
+
+In his paper, Tal Aval highlighted some of the most important problematic in animal movement analysis. Firstly, looking at the continuous movement of the animal through time and space at a much defined scale. The movement is considered as a series of steps (line connects 2 following observation points). Secondly, at each step the animal has many choices to move based on environment availability. This availability come from the movement capacity (ex: how long this species of bird can flight and it flights to travel or foraging...), however, it's also influenced by environment (ex: harder to flight in strong wind...). Thirdly, animal final choice to moved is decided by habitat selection, which mean naturally it move to the preferable habitat. 
+
+To solve these problems, he suggested the mechanics movement model as formular (pictures)...., that can be used to translate individual observations to population utilisation distributions across space and time. This model included the product of two kernels, a movement kernel and a habitat-selection kernel.
+\begin{align*}
+f(x_t|x_{t-1},x_{t-2}) &= \frac{\phi[l_t,l_{t-1},\alpha_t,\alpha_{t-1}\gamma(x,x_{t-1},t)\theta]\Psi[H(x,t),\omega]}{\int_\Omega \Phi[l_t,l_{t-1},\alpha_t,\alpha_{t-1}\gamma(x,x_{t-1},t)\theta]\Psi[H(x,t),\omega]\,dx}\
+\end{align*}
+
+The movement kernel $\phi$ included:
+\begin{itemize}
+  \item Turning angles are von-Mises distributed with mean 0 (left or right turn are considered the same), because at the observed scale, the animal’s movement is directionally persistent.
+  \item Step lengths are gamma distributed, and the shape of this step-length distribution depends on environment covariates at that time. This is to avoid the bias conclusion that movement capacity is independent from environment.
+\end{itemize}
+
+The habitat-selection kernel $\Psi$ included:
+\begin{itemize}
+  \item Many environment covariates $h(x)$ at the ending points of each step, we assumed that the animal is selecting high values of $h(x)$ (prefered habitat).
+  \item Each conclusion goes with a weight factor.
+\end{itemize}
+    
+Assuming an exponential form for both $\phi$ and $\Psi$, Maximum Likelihood Estimation for the parameter vectors h and x can be obtained using conditional logistic regression. The available steps can be created by sampling from theoratical distribution of step lengths and turning angles. Once sampled, available steps are assigned a value of
+0, whereas the observed (used or case) steps are assigned a value of 1. The resulting binomial response variable can now be modelled using function clogit from survival package, where one used step (cases) is matched with a sample of available steps.
+
+Using computer simulation, Tal Avgal has shown that iSSA based habitat-selection inference is relatively insensitive to model structure and landscape configuration, and that iSSA ased UD predictions perform well across different temporal and spatial scales. We re-applied his method for this project to check this ....
+
+\section{Application du papier de Tal Avgar}
+
+\subsection{Comparaison des colonies au travers des covariables du modèle}
+
+\subsection{Identification de motifs chez les Puffins (classification non supervisée)}
+
+It’s also interesting to look into the movement patterns for each individuals without considering its colonies, aim: looking for if there some groups of birds prefer fishing in same kind of habitat.
+
+We fit a model per bird by iSSA method (picture of model) and then look into group similarity by hierarchical cluster analysis. One one hand, the movement capacity is relatively unique between individuals and on the the other hand, we want to look into just habitat-selection behaviours in this analysis. Therefore, only the coefficients of environment covariates are used for clustering.
+
+We have some outliers coming mostly from Corsica's colonies, which will be leave out for clustering.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{c|c c c c}
+Year|Colony       & Giraglia & Lavezzi & Porquerolles & Riou\\
+\hline
+2011              & 11 & 8 & 2 & 4  \\
+2012              & 15 & 9 & 0 & 1  \\
+\end{tabular}
+\caption{Outlier by years and colonies}
+\end{table}
+
+HAC leaves us with 2 main groups to investigate:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{c|c|cccc}
+Cluster|Colony       &Total & Giraglia & Lavezzi & Riou & Porquerolles\\
+\hline
+1              & 69 & 18 & 23 & 18 & 10 \\
+2              & 66 & 15 & 14 & 21 & 16 \\
+
+\end{tabular}
+\caption{Number of individuals by cluster}
+\end{table}
+
+Interpret clusters by conditional descriptive statistics. This appoarch is called univariable characterization: On one hand, we can compare the means of each variables conditionally to the groups to find typical behaviors of each cluster. On the other hand, we can evaluate the importance of a single variable in the construction of the
+clustering structure using Huygens theorem. The process can be extended to auxiliary variables that was not included in the clustering process, but used for the interpretation of the results. However, we do not take into account the relationship between the variables in this case (some variables may be highly correlated). The result therefore summarized in Figure 1. The bars present means of each variable which created the clusters (coefficient of environment covariates) and also auxiliary variables in grey (step length, turning angle...) and the triangles present the global means from all individuals. Only the variables the most influence each cluster are colored orange(SST28, GSST28, VEL7). They have to be both significant different ($\alpha$ = 0.1) by t-test and have highest $\eta$ by Huygens theorem (~20 - 30).
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{00000d.png}
+\caption{\label{fig:00000d}Means compare between clusters.}
+\end{figure}
+
+On the other hand, we have to take into account the join effect between variables (Multivariate analysis). A LDA analysis is conducted to get the latent variable which separated the best 2 clusters. Figure 2 should the conditional correlation of all variables on the LDA axe. All GSST28, VEL7 and SST28 have strong interaction between the clusters.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{000004.png}
+\caption{\label{fig:000004}Correlation of variables on LDA axe.}
+\end{figure}
+
+Finally we have discrimination line by LDA, compare with results of HAC for each pair variables in Figure 3:
+\begin{itemize}
+  \item Cluster 1 has on average negative and lower GSST28 and SST28 coefficients, which means these birds prefer area has low and constant temperature than Cluster 2
+  \item Bird in cluster 2 on average has very low effect of GSST28 and SST28 on habitat selection
+  \item Cluster 1 has positive VEL7 effect, which mean they prefer area with high sea velocity than cluster 2
+\end{itemize}
+
+
+\begin{figure}[!htb]
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{0000a3.png}
+\endminipage\hfill
+\minipage{0.5\textwidth}
+  \includegraphics[width=\linewidth]{00009f.png}
+\endminipage\hfill
+\minipage{0.5\textwidth}%
+  \includegraphics[width=\linewidth]{000091.png}
+\endminipage
+\caption{Cluster separation by LDA}\label{fig:awesome_image3}
+\end{figure}
+
+
+\bibliographystyle{alpha}
+\bibliography{sample}
+
+\end{document}
